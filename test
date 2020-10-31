@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+
+"""
+Test suite.
+"""
+
+import math,numpy,sympy
+from sympy.physics.quantum.cg import CG
+
+import util,hamiltonian,high_level
+
+def main():
+  do_tests()
+
+def do_tests():
+  # factorial
+  test_equal(math.exp(hamiltonian.ln_fac(0)),1,'0! =1')
+  test_equal(math.exp(hamiltonian.ln_fac(1)),1,'1! =1')
+  test_equal(math.exp(hamiltonian.ln_fac(4)),24,'4! =24')
+
+  # gamma function
+  test_equal(hamiltonian.ln_gamma(7.0),hamiltonian.ln_gamma(8.0)-math.log(7),'Gamma(7)=Gamma*8)/7')
+
+  # Clebsch-Gordan
+  # The following are in the form j1,m1,j2,m2,j3,m3.
+  # https://en.wikipedia.org/wiki/Clebsch%E2%80%93Gordan_coefficients#Special_cases
+  test_equal(hamiltonian.clebsch2(7*2,2*2,7*2,-2*2,0,0),-1.0/math.sqrt(2.0*7+1.0),'<7272|00>=-1/sqrt(2*7+1)')
+  test_equal(hamiltonian.clebsch2(7*2,2*2,6*2,-2*2,0,0),0.0,'<7262|00>=0')
+  # The following are in the form <l1 l2 m1 m2 | l3 m3>, integer spins:
+  test_equal(hamiltonian.clebsch(1,2,1,0,1,1),1/math.sqrt(10.0),'<1210|11>=1/sqrt10')
+  test_equal(hamiltonian.clebsch(1,2,0,0,1,0),-math.sqrt(2.0/5.0) ,'<1200|10>=-sqrt(2/5)')
+
+  # matrix elements of Y20
+  test_equal(hamiltonian.y20_matrix_element(1,1,1,1, 1,1,1,1),-math.sqrt(5.0/(4.0*math.pi))/5.0,'<11|Y20|11>=-sqrt(5/4pi)(1/5)') # ECM doc, p. 19
+
+
+  # matrix elements of r^2
+  # Test using some special cases from ECM doc. Inputs are n,l,ml,ms, n2,l2,ml2,ms2.
+  test_equal(hamiltonian.r2_matrix_element(0,0,0,1, 0,0,0,1),1.5,'<00|r^2|00>=3/2')
+  test_equal(hamiltonian.r2_matrix_element(1,1,1,1, 1,1,1,1),2.5,'<11|r^2|11>=5/2')
+  test_equal(hamiltonian.r2_matrix_element(2,0,0,1, 2,0,0,1),3.5,'<20|r^2|20>=7/2')
+  test_equal(hamiltonian.r2_matrix_element(2,2,0,1, 2,2,0,1),3.5,'<22|r^2|22>=7/2')
+  test_equal(hamiltonian.r2_matrix_element(2,0,0,1, 2,2,0,1),-2*math.sqrt(2.5),'<20|r^2|22>=-2sqrt(2.5)') # ECM's sign seems wrong
+  test_equal(hamiltonian.r2_matrix_element(0,0,0,1, 2,0,0,1),-math.sqrt(1.5),'<00|r^2|20>=-sqrt(1.5)')
+
+  # Test runs of the full model. Check against some closed-form results from ECM doc.
+  # Inputs are n_max,Omega*2,parity,{...}.
+
+  delta = 0.1
+  half_nilsson(0,1, 0.0,   0,(lambda eta : 0.0),         's1/2, no deformation, ground state energy=1.5')
+  half_nilsson(0,1, delta, 0,(lambda eta : 0.0),         's1/2, ground state energy=1.5')
+  half_nilsson(1,1, 0.0,   0,(lambda eta :        -1.0), 'p3/2, Omega=1/2, no deformation')
+  half_nilsson(1,3, 0.0,   0,(lambda eta :        -1.0), 'p3/2, Omega=3/2, no deformation')
+  half_nilsson(1,1, 0.0,   1,(lambda eta :         2.0), 'p1/2, Omega=1/2, no deformation')
+  half_nilsson(1,1, delta, 0,(lambda eta : 0.5*(1-eta/3.0-math.sqrt(eta*eta+2.0*eta+9.0)) ), 'p3/2, Omega=1/2')
+  half_nilsson(1,3, delta, 0,(lambda eta : eta/3.0-1.0 ),                                    'p3/2, Omega=3/2')
+  half_nilsson(1,1, delta, 1,(lambda eta : 0.5*(1-eta/3.0+math.sqrt(eta*eta+2.0*eta+9.0)) ), 'p1/2, Omega=1/2')
+
+
+
+def half_nilsson(n,omega, delta, i,th,message):
+  # test with only a single N shell (as opposed to a ... full ... Nilsson)
+  parity = n%2
+  result = high_level.do_nilsson(n,omega,parity,{'delta':delta,'kappa':0.1}) # unphysical kappa to make math simple
+  # print(result['ham']) 
+  got = result['evals'][i]-(1.5+n)
+  delta = result['delta']
+  kappa = result['kappa']
+  eta = (delta/kappa)*hamiltonian.delta_to_omega0(delta)
+  want = th(eta)*kappa
+  test_equal(got,want,message)
+
+
+def test_equal(x,y,message):
+  if abs(x-y)>1.0e-14:
+    print('failed '+message)
+    print('  got ',x)
+    print('  expected ',y)
+    #raise Exception('test failed')
+  else:
+    print('passed: '+message)
+  print("------------------------------------------------------------------")
+
+main()

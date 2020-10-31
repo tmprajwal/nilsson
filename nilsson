@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+
+"""
+An implementation of the Nilsson model of nuclear structure for deformed nuclei.
+"""
+
+import util,hamiltonian,high_level
+
+def main():
+  run_nilsson()
+
+def run_nilsson():
+  n_max = 10
+  omega = 7 # 7/2-
+  parity = 1
+  result = high_level.do_nilsson(n_max,omega,parity,{'delta':0.2})
+  n_states = result['n_states']
+  print(result['index'])
+  for i in range(n_states):
+    print(result['evals'][i])
+
+
+main()
