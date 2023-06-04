@@ -2,13 +2,16 @@
 
 """
 Make a spaghetti plot.
+./spaghetti_edit 5 5 11 0 0.3 pdf 0.065 0.60 1.0 9.9
 """
 
-import os
+import os,sys
 import util,hamiltonian,high_level,states
 
 def main():
-  spaghetti({'n_max':6,'n_max_scale':6,'n_def':11,'delta_lo':0,'delta_hi':0.5,'fmt':"pdf",'kappa':0.0637,'mu':0.60,'e_lo':1,'e_hi':6.75})
+  print(sys.argv[1], ":", sys.argv[2], ":", sys.argv[3], ":", sys.argv[4], ":", sys.argv[5], ":", sys.argv[6], ":", sys.argv[7], ":", sys.argv[8], ":", sys.argv[9], ":", sys.argv[10])
+  spaghetti({'n_max':int(sys.argv[1]),'n_max_scale':int(sys.argv[2]),'n_def':int(sys.argv[3]),'delta_lo':float(sys.argv[4]),'delta_hi':float(sys.argv[5]),'fmt':sys.argv[6],'kappa':float(sys.argv[7]),'mu':float(sys.argv[8]),'e_lo':float(sys.argv[9]),'e_hi':float(sys.argv[10])})
+  #spaghetti({'n_max':6,'n_max_scale':6,'n_def':11,'delta_lo':0,'delta_hi':0.5,'fmt':"pdf",'kappa':0.0637,'mu':0.60,'e_lo':1,'e_hi':6.75})
   #stream = os.popen('wolframscript script.wls')
   #stream = os.popen('wolframscript script2.wls')
 
