@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-Test suite.
+Test suite
 """
 
 import math,numpy,sympy
