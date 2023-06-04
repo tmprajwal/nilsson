@@ -2,7 +2,7 @@
 
 """
 Make a spaghetti plot.
-./spaghetti_edit 5 5 11 0 0.3 pdf 0.065 0.60 1.0 9.9
+./spaghetti_edit 5 5 501 0 0.5 pdf 0.065 0.60 1.0 9.9
 """
 
 import os,sys
