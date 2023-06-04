@@ -45,6 +45,7 @@ def spaghetti_r_code(pars):
     x = float(k)/float(n_def-1)
     delta = delta_lo+(delta_hi-delta_lo)*x
     defs.append(delta)
+    defs.append(delta)
   r = '' # generate R code
   r = r + fmt+'("'+filename+'")'+"\n"
   r = r + ("delta <-"+list_to_r_code(defs))+"\n"
@@ -90,8 +91,8 @@ def spaghetti_r_code(pars):
   if 'e_hi' in pars:
     e_hi = pars['e_hi']
   title = "kappa="+str(pars['kappa'])+" mu="+str(pars['mu'])
-  #subtitle = "Made with github.com/bcrowell/nilsson."
-  opt = ',type="n",xlab="delta",ylab="E (hbar*omega)",main="'+title+'"'
+  subtitle = "https://github.com/tmprajwal/nilsson"
+  opt = ',type="n",xlab="delta",ylab="E (hbar*omega)",main="'+title+'",sub="'+subtitle+'"'
   r = r + 'plot('+list_to_r_code([delta_lo,delta_hi])+','+list_to_r_code([e_lo,e_hi])+opt+')'+"\n"
   for key in vars:
     parity = key[1]

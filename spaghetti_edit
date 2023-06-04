@@ -8,7 +8,9 @@ import os
 import util,hamiltonian,high_level,states
 
 def main():
-  spaghetti({'n_max':6,'n_max_scale':6,'n_def':2,'delta_lo':0,'delta_hi':0.5,'fmt':"pdf",'kappa':0.0637,'mu':0.60,'e_lo':1,'e_hi':6.75})
+  spaghetti({'n_max':6,'n_max_scale':6,'n_def':11,'delta_lo':0,'delta_hi':0.5,'fmt':"pdf",'kappa':0.0637,'mu':0.60,'e_lo':1,'e_hi':6.75})
+  #stream = os.popen('wolframscript script.wls')
+  #stream = os.popen('wolframscript script2.wls')
 
 def spaghetti(pars):
   # Mandatory parameters are n_max,n_def,delta_lo,delta_hi,fmt.
@@ -31,6 +33,10 @@ def spaghetti(pars):
 
 def spaghetti_r_code(pars):
   n_max,n_def,delta_lo,delta_hi,fmt,filename = pars['n_max'],pars['n_def'],pars['delta_lo'],pars['delta_hi'],pars['fmt'],pars['filename'],
+  ##
+  f1=open("result.dat","w+")
+  f2=open("result2.dat","w+")
+  ##  
   if not ('n_max_scale' in pars):
     pars['n_max_scale'] = min(6,n_max)
   keys = []
@@ -41,6 +47,7 @@ def spaghetti_r_code(pars):
     x = float(k)/float(n_def-1)
     delta = delta_lo+(delta_hi-delta_lo)*x
     defs.append(delta)
+  print(defs)
   r = '' # generate R code
   r = r + fmt+'("'+filename+'")'+"\n"
   r = r + ("delta <-"+list_to_r_code(defs))+"\n"
@@ -56,7 +63,10 @@ def spaghetti_r_code(pars):
             p[par] = pars[par]
         result = high_level.do_nilsson(n_max,omega,parity,p)
         #sprint(result['states']," : ",result['evals'])
+        f1.write(str(result['index']))
+        f2.write(str(result['evals'])) #evals, evecs, n_states, ham, index
         n_states = result['n_states']
+        #sprint(n_states)
         for i in range(n_states):
           key = (omega,parity,i)
           var = "e"+str(omega)+"_"+str(parity)+"_"+str(i)
@@ -65,6 +75,8 @@ def spaghetti_r_code(pars):
             e[key] = []
             vars[key] = var
           e[key].append(result['evals'][i])
+  f1.close()
+  f2.close()
   for omega in range(1,2*n_max+1,2):
     for parity in range(2):
       r = r + ("#----------------------------------- "+states.describe_omega_parity(omega,parity)+" -----------------------------------\n")
